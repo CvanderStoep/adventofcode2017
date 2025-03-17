@@ -2,7 +2,7 @@ def read_input_file(file_name: str) -> list:
     with open(file_name) as f:
         content = f.read().splitlines()
         # return f.read().strip()
-    # content = list(map(int, content))
+    content = list(map(int, content))
 
 
     return content

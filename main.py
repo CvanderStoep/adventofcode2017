@@ -1,16 +1,10 @@
-# This is a sample Python script.
+import itertools
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+def digits(string: str):
+    return [int(n) for n in string.split()]
 
+with open('input/input2.txt') as fp:
+    rows = [digits(line) for line in fp.read().strip().splitlines()]
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+print(sum(b-a for a, *_, b in map(sorted, rows)))
+print(sum(b//a for row in rows for a, b in itertools.combinations(sorted(row), 2) if b%a==0))
