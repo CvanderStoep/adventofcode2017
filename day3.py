@@ -1,6 +1,6 @@
 import math
 from collections import defaultdict
-
+from day3copilot import generate_spiral, get_keys_by_value
 
 def read_input_file(file_name: str) -> list:
     with open(file_name) as f:
@@ -46,6 +46,11 @@ def compute_part_one(n: int) -> str:
     coordinates = get_coordinates(n)
     print(f"The coordinates of {n} are: {coordinates}")
     print(f'The Manhattan distance is: {calculate_manhattan_distance(coordinates)}')
+
+    # using alternative way to make the grid, suggested by copilot
+    grid = generate_spiral(n)
+    keys = get_keys_by_value(grid, n)
+    print(f'{keys= }')
 
     return f'{calculate_manhattan_distance(coordinates)= }'
 
