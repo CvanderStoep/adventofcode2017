@@ -1,3 +1,6 @@
+from typing import Any
+
+
 def read_input_file(file_name: str) -> list:
     with open(file_name) as f:
         return list(map(int, f.read().split()))
@@ -13,28 +16,34 @@ def distribute_memory(memory: list) -> list:
     return memory
 
 
-def find_cycles(memory: list, find_loop: bool = False) -> int:
-    seen = {}
-    cycles = 0
-
-    while tuple(memory) not in seen:
-        seen[tuple(memory)] = cycles
+def find_cycle(memory: list) -> tuple[int | Any, list]:
+    seen = set()
+    seen.add(tuple(memory))
+    cycle = 1
+    while True:
         memory = distribute_memory(memory)
-        cycles += 1
-
-    return cycles - seen[tuple(memory)] if find_loop else cycles
+        if tuple(memory) in seen:
+            return cycle, memory
+        seen.add(tuple(memory))
+        cycle += 1
 
 
 def compute_part_one(file_name: str) -> str:
     memory = read_input_file(file_name)
-    cycles = find_cycles(memory)
-    return f'Number of redistribution cycles before configuration is seen again: {cycles}'
+    print(memory)
+    cycle, memory = find_cycle(memory)
+    return f'number of redistribution cycles before configuration is seen again: {cycle}'
 
 
 def compute_part_two(file_name: str) -> str:
     memory = read_input_file(file_name)
-    loop_size = find_cycles(memory, find_loop=True)
-    return f'Size of the infinite loop: {loop_size}'
+
+    # the first call is identical to part I
+    # the second call is to get the repeat cycle after it was found
+
+    cycle, memory = find_cycle(memory)
+    cycle, memory = find_cycle(memory)
+    return f'cycle size: {cycle}'
 
 
 if __name__ == '__main__':
