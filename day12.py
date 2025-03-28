@@ -11,7 +11,6 @@ def read_input_file(file_name: str) -> defaultdict[int, list[int]]:
     return connections
 
 
-
 def get_connected_graph(connections: dict, start: int) -> set:
     visited = set()
     queue = deque([start])
