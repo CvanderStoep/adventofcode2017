@@ -2,7 +2,7 @@ import numpy as np
 def read_input_file(file_name: str) -> list:
     with open(file_name) as f:
         content = f.read().split(',')
-    content = list(map(int, content))
+    # content = list(map(int, content))
 
 
     return content
@@ -46,5 +46,5 @@ def compute_part_two(file_name: str) -> str:
 
 if __name__ == '__main__':
     file_path = 'input/input10.txt'
-    print(f"Part I: {compute_part_one(file_path)}")
+    # print(f"Part I: {compute_part_one(file_path)}")
     print(f"Part II: {compute_part_two(file_path)}")

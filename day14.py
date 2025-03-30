@@ -1,24 +1,25 @@
 from collections import deque
-import numpy as np
 
-# Function to read input from a file
+import numpy as np
 def read_input_file(file_name: str) -> str:
     with open(file_name) as f:
-        return f.read().strip()
+        content = f.read()
+    return content
 
 # Function to convert hexadecimal to binary with 4-digit formatting
-def hex_to_binary(hex_string: str) -> str:
-    return ''.join(f'{int(c, 16):04b}' for c in hex_string)
+def hex_to_binary(hex_string):
+    # Convert to integer, then format as binary and ensure 4-digit padding for each hex digit
+    binary_string = ''.join(bin(int(digit, 16))[2:].zfill(4) for digit in hex_string)
+    return binary_string
 
-# Function to reverse a sublist for the knot hash
-def knot_hash(lst: list, l: int, pos: int) -> list:
+def knot_hash(lst: list, l, pos):
+
     array_length = len(lst)
     new_array = lst.copy()
     for i in range(l):
-        new_array[(pos + i) % array_length] = lst[(pos + l - i - 1) % array_length]
+        new_array[(pos + i) % array_length] = lst[(pos + l -i -1) % array_length]
     return new_array
 
-# Function to compute the dense hash and return the knot hash
 def calculate_knot_hash(key_string: str) -> str:
     lengths = [ord(x) for x in key_string] + [17, 31, 73, 47, 23]
     lst = list(range(256))
@@ -27,30 +28,35 @@ def calculate_knot_hash(key_string: str) -> str:
     for _ in range(64):
         for l in lengths:
             lst = knot_hash(lst, l, pos)
-            pos = (pos + l + skip) % len(lst)
+            pos += (l + skip)
+            pos = pos % len(lst)
             skip += 1
-    # Compute dense hash and convert to hexadecimal
-    dense_hash = [np.bitwise_xor.reduce(lst[i:i + 16]) for i in range(0, 256, 16)]
-    return ''.join(f'{x:02x}' for x in dense_hash)
+    arr = np.array(lst)
+    hex_string = ''.join(hex(x)[2:].zfill(2) for x in np.bitwise_xor.reduce(arr.reshape(16, 16), axis=1))
+    return hex_string
 
-# Function to create the binary grid
-def create_binary_grid(file_name: str) -> list:
-    puzzle_input = read_input_file(file_name)
-    return [
-        hex_to_binary(calculate_knot_hash(f"{puzzle_input}-{i}"))
-        for i in range(128)
-    ]
-
-# Function to compute the number of used squares (Part I)
 def compute_part_one(file_name: str) -> str:
-    grid = create_binary_grid(file_name)
-    number_of_squares = sum(row.count('1') for row in grid)
-    return f"{number_of_squares}"
+    puzzle_input = read_input_file(file_name)
+    number_of_squares = 0
+    print(f'{puzzle_input= }')
+    for i in range(128):
+        key_string = puzzle_input + '-' + str(i)
+        hex_string = calculate_knot_hash(key_string)
+        binary_string = hex_to_binary(hex_string)
+        number_of_squares += binary_string.count('1')
 
-# Function to compute the number of regions (Part II)
+    return f'{number_of_squares}'
+
 def compute_part_two(file_name: str) -> str:
-    grid = create_binary_grid(file_name)
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    puzzle_input = read_input_file(file_name)
+    grid = []
+    for i in range(128):
+        key_string = puzzle_input + '-' + str(i)
+        hex_string = calculate_knot_hash(key_string)
+        binary_string = hex_to_binary(hex_string)
+        grid.append(binary_string)
+
     all_visited = set()
     number_of_regions = 0
 
@@ -69,10 +75,11 @@ def compute_part_two(file_name: str) -> str:
                                 queue.append((nx, ny))
                 number_of_regions += 1
 
-    return f"{number_of_regions}"
 
-# Main execution
-if __name__ == "__main__":
-    file_path = 'input/input14.txt'  # Replace with your input file path
+    return f'{number_of_regions= } '
+
+
+if __name__ == '__main__':
+    file_path = 'input/input14.txt'
     print(f"Part I: {compute_part_one(file_path)}")
     print(f"Part II: {compute_part_two(file_path)}")
