@@ -38,8 +38,9 @@ def calculate_knot_hash(key_string: str) -> str:
 def compute_part_one(file_name: str) -> str:
     puzzle_input = read_input_file(file_name)
     number_of_squares = 0
+    size = 128
     print(f'{puzzle_input= }')
-    for i in range(128):
+    for i in range(size):
         key_string = puzzle_input + '-' + str(i)
         hex_string = calculate_knot_hash(key_string)
         binary_string = hex_to_binary(hex_string)
@@ -51,27 +52,28 @@ def compute_part_two(file_name: str) -> str:
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
     puzzle_input = read_input_file(file_name)
     grid = []
-    for i in range(128):
+    size = 128
+    for i in range(size):
         key_string = puzzle_input + '-' + str(i)
         hex_string = calculate_knot_hash(key_string)
         binary_string = hex_to_binary(hex_string)
         grid.append(binary_string)
 
-    all_visited = set()
+    visited = set()
     number_of_regions = 0
 
-    for y in range(128):
-        for x in range(128):
-            if (x, y) not in all_visited and grid[y][x] == '1':
+    for y in range(size):
+        for x in range(size):
+            if (x, y) not in visited and grid[y][x] == '1':
                 # Use BFS to explore a new region
                 queue = deque([(x, y)])
                 while queue:
                     cx, cy = queue.popleft()
-                    if (cx, cy) not in all_visited:
-                        all_visited.add((cx, cy))
+                    if (cx, cy) not in visited:
+                        visited.add((cx, cy))
                         for dx, dy in directions:
                             nx, ny = cx + dx, cy + dy
-                            if 0 <= nx < 128 and 0 <= ny < 128 and grid[ny][nx] == '1' and (nx, ny) not in all_visited:
+                            if 0 <= nx < size and 0 <= ny < size and grid[ny][nx] == '1' and (nx, ny) not in visited:
                                 queue.append((nx, ny))
                 number_of_regions += 1
 
