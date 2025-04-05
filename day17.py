@@ -15,7 +15,6 @@ def compute_part_one() -> str:
     index_2017 = circular_buffer.index(size)
     print(circular_buffer[index_2017-3: index_2017+3])
 
-
     return f'{circular_buffer[index_2017 + 1]= }'
 
 def compute_part_two() -> str:
