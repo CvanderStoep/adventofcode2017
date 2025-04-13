@@ -43,11 +43,9 @@ def remove_collisions(particles: dict):
         particle_count[tuple(particle.p)] += 1
 
     new_particles = dict()
-    for coordinates, amount in particle_count.items():
-        if amount == 1:
-            for key, particle in particles.items():
-                if particle.p == list(coordinates):
-                    new_particles[key] = particle
+    for key, particle in particles.items():
+        if particle_count[tuple(particle.p)] == 1:
+            new_particles[key] = particle
 
     particles = dict(new_particles)
     return particles
@@ -63,7 +61,6 @@ def compute_part_one(file_name: str) -> str:
 
 def compute_part_two(file_name: str) -> str:
     particles = read_input_file(file_name)
-    print(particles)
 
     for _ in range(100):
         for key, particle in particles.items():
