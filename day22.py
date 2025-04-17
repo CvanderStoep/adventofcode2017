@@ -107,7 +107,7 @@ def compute_part_two(file_name: str) -> str:
     position = virus
     infections = 0
 
-    for i in range(1000):
+    for i in range(100000):
         direction, position, infections = process_step2(grid, direction, position, infections)
     visualize_grid(grid, position, direction)
 
