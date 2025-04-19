@@ -40,8 +40,11 @@ def compute_fits(components: list[(int, int)]) -> dict[(int, int), list[(int, in
     fits = defaultdict(list)
 
     def add_potential_fit(c1, c2):
-        if is_fit(c1, c2):
-            fits[c1].append(c2)
+        fit = is_fit(c1, c2)
+        if fit == 1:
+            fits[c1].append((c2, 1))
+        elif fit == -1:
+            fits[c1].append((c2, -1))
 
     for component in components:
         for other_component in components:
@@ -70,50 +73,39 @@ def compute_part_one(file_name: str) -> str:
         queue.append(([start_component], set([c for c in other_components if not is_start_component(c)])))
     max_strength = 0
 
-    plt.ion()
-    fig, ax = plt.subplots()
-    x, y = [], []
-    line, = ax.plot(x, y)
-    plt.xlabel('Length')
-    plt.ylabel('Delay (s)')
+    longest_bridge_lengths, delays = [], []
 
     longest_bridge_found = datetime.datetime.now()
     longest_bridge = 0
     while queue:
         bridge, components = queue.popleft()
+        last_port = bridge[-1][1]
 
-        immutable_bridge = tuple(bridge)
-        if immutable_bridge in visited_bridges:
+        visisted_bridge = (last_port, frozenset(components))
+        if visisted_bridge in visited_bridges:
             continue
-        visited_bridges.add(immutable_bridge)
+        visited_bridges.add(visisted_bridge)
 
         if len(bridge) > longest_bridge:
             longest_bridge = len(bridge)
             delay = (datetime.datetime.now() - longest_bridge_found).total_seconds()
             longest_bridge_found = datetime.datetime.now()
-            x.append(longest_bridge)
-            y.append(delay)
-            line.set_data(x, y)
-            ax.relim()
-            ax.autoscale_view()
-            plt.draw()
-            plt.pause(0.01)
+            longest_bridge_lengths.append(longest_bridge)
+            delays.append(delay)
 
         extended_bridge = False
 
         last_bridge_component = bridge[-1]
         potential_fits = fits[last_bridge_component]
 
-        for component in potential_fits:
-            fit = is_fit(last_bridge_component, component)
+        for component, orientation in potential_fits:
             if component in components:
                 extended_bridge = True
-                other_components = components.copy()
-                other_components.remove(component)
+                other_components = components - {component}
                 new_bridge=bridge.copy()
-                if fit == 1:
+                if orientation == 1:
                     new_bridge.append(component)
-                if fit == -1:
+                if orientation == -1:
                     new_bridge.append(flip(component))
                 queue.append((new_bridge, other_components))
 
@@ -122,7 +114,13 @@ def compute_part_one(file_name: str) -> str:
             if strength > max_strength:
                 max_strength = strength
 
-    print(f"Runtime: {sum(y)}s")
+    print(f"Runtime: {sum(delays)}s")
+
+
+    plt.plot(longest_bridge_lengths, delays)
+    plt.xlabel('Length')
+    plt.ylabel('Delay (s)')
+    plt.show()
 
     return f"{max_strength= }"
 
@@ -136,6 +134,3 @@ if __name__ == '__main__':
     file_path = 'input/input24.txt'
     print(f"Part I: {compute_part_one(file_path)}")
     print(f"Part II: {compute_part_two(file_path)}")
-
-    plt.ioff()
-    plt.show()
