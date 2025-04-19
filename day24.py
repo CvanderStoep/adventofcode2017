@@ -1,6 +1,6 @@
 import datetime
 import re
-from collections import deque
+from collections import deque, defaultdict
 import matplotlib.pyplot as plt
 
 
@@ -36,18 +36,36 @@ def is_start_component(component: (int, int)) -> bool:
     return component[0] == 0 or component[1] == 0
 
 
+def compute_fits(components: list[(int, int)]) -> dict[(int, int), list[(int, int)]]:
+    fits = defaultdict(list)
+
+    def add_potential_fit(c1, c2):
+        if is_fit(c1, c2):
+            fits[c1].append(c2)
+
+    for component in components:
+        for other_component in components:
+            if component == other_component:
+                continue
+            add_potential_fit(component, other_component)
+            add_potential_fit(flip(component), other_component)
+
+    return fits
+
+
 def compute_part_one(file_name: str) -> str:
     components = read_input_file(file_name)
+
+    fits = compute_fits(components)
+
     queue = deque()
     for component in components:
         if not is_start_component(component):
             continue
         other_components = components.copy()
         other_components.remove(component)
-        if component[0] == 0:
-            queue.append(([component], [c for c in other_components if not is_start_component(c)]))
-        else:
-            queue.append(([flip(component)], [c for c in other_components if not is_start_component(c)]))
+        start_component = component if component[0] else flip(component)
+        queue.append(([start_component], set([c for c in other_components if not is_start_component(c)])))
     max_strength = 0
 
     plt.ion()
@@ -74,9 +92,13 @@ def compute_part_one(file_name: str) -> str:
             plt.pause(0.1)
 
         extended_bridge = False
-        for component in components:
-            fit = is_fit(bridge[-1], component)
-            if fit != 0:
+
+        last_bridge_component = bridge[-1]
+        potential_fits = fits[last_bridge_component]
+
+        for component in potential_fits:
+            fit = is_fit(last_bridge_component, component)
+            if component in components:
                 extended_bridge = True
                 other_components = components.copy()
                 other_components.remove(component)
@@ -107,5 +129,5 @@ if __name__ == '__main__':
     print(f"Part I: {compute_part_one(file_path)}")
     print(f"Part II: {compute_part_two(file_path)}")
 
-    plt.ioff()
-    plt.show()
+    # plt.ioff()
+    # plt.show()
