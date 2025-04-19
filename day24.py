@@ -97,7 +97,7 @@ def compute_part_one(file_name: str) -> str:
             ax.relim()
             ax.autoscale_view()
             plt.draw()
-            plt.pause(0.1)
+            plt.pause(0.01)
 
         extended_bridge = False
 
@@ -134,9 +134,8 @@ def compute_part_two(file_name: str) -> str:
 
 if __name__ == '__main__':
     file_path = 'input/input24.txt'
-    for _ in range(5):
-        print(f"Part I: {compute_part_one(file_path)}")
+    print(f"Part I: {compute_part_one(file_path)}")
     print(f"Part II: {compute_part_two(file_path)}")
 
-    # plt.ioff()
-    # plt.show()
+    plt.ioff()
+    plt.show()
