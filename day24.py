@@ -44,8 +44,13 @@ def compute_port_map(components: list[(int, int)]) -> dict[(int, int), list[(int
     return port_map
 
 
+def assert_validity(components: list[(int, int)]):
+    assert len(set(components)) == len(components), "Visited state tracking assumes no duplicate components"
+
+
 def compute_part_one(file_name: str) -> str:
     components = read_input_file(file_name)
+    assert_validity(components)
 
     port_map = compute_port_map(components)
 
@@ -69,10 +74,10 @@ def compute_part_one(file_name: str) -> str:
         bridge, components = queue.popleft()
         last_port = bridge[-1][1]
 
-        visisted_bridge = (last_port, frozenset(components))
-        if visisted_bridge in visited_bridges:
+        visited_bridge = (last_port, frozenset(components))
+        if visited_bridge in visited_bridges:
             continue
-        visited_bridges.add(visisted_bridge)
+        visited_bridges.add(visited_bridge)
 
         if len(bridge) > longest_bridge:
             longest_bridge = len(bridge)
