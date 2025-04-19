@@ -11,24 +11,13 @@ def read_component(component: str) -> (int, int):
 
 def read_input_file(file_name: str) -> list[(int, int)]:
     with open(file_name) as f:
-        content = list(map(read_component, f.read().splitlines()))
-
-    return content
+        return list(map(read_component, f.read().splitlines()))
 
 def is_fit(c1: (int, int), c2: (int, int)) -> int:
-    if c1[0]==0 and c2[0]==0:
-        return 0
-    if c1[0] ==0 and c2[1]==0:
-        return 0
-    if c1[1] ==0 and c2[0] ==0:
-        return 0
-    if c1[1] ==0 and c2[1] ==0:
-        return 0
     if c1[1]==c2[0]:
         return 1
     if c1[1]==c2[1]:
         return -1
-
     return 0
 
 def calculate_bridge_strength(bridge:list) -> int:
@@ -43,17 +32,22 @@ def flip(component: (int, int)) -> (int, int):
     return component[1], component[0]
 
 
+def is_start_component(component: (int, int)) -> bool:
+    return component[0] == 0 or component[1] == 0
+
+
 def compute_part_one(file_name: str) -> str:
     components = read_input_file(file_name)
     queue = deque()
     for component in components:
-        if 0 in component:
-            other_components = components.copy()
-            other_components.remove(component)
-            if component[0] == 0:
-                queue.append(([component],[c for c in other_components if c[0] != 0 and c[1] != 0]))
-            else:
-                queue.append(([flip(component)], [c for c in other_components if c[0] != 0 and c[1] != 0]))
+        if not is_start_component(component):
+            continue
+        other_components = components.copy()
+        other_components.remove(component)
+        if component[0] == 0:
+            queue.append(([component], [c for c in other_components if not is_start_component(c)]))
+        else:
+            queue.append(([flip(component)], [c for c in other_components if not is_start_component(c)]))
     max_strength = 0
 
     plt.ion()
