@@ -13,6 +13,7 @@ def read_input_file(file_name: str) -> list[(int, int)]:
     with open(file_name) as f:
         return list(map(read_component, f.read().splitlines()))
 
+
 def is_fit(c1: (int, int), c2: (int, int)) -> int:
     if c1[1]==c2[0]:
         return 1
@@ -20,12 +21,9 @@ def is_fit(c1: (int, int), c2: (int, int)) -> int:
         return -1
     return 0
 
-def calculate_bridge_strength(bridge:list) -> int:
-    bridge_strength = 0
-    for component in bridge:
-        bridge_strength += component[0]
-        bridge_strength += component[1]
-    return bridge_strength
+
+def calculate_bridge_strength(bridge: list[(int, int)]) -> int:
+    return sum(sum(component) for component in bridge)
 
 
 def flip(component: (int, int)) -> (int, int):
@@ -36,30 +34,20 @@ def is_start_component(component: (int, int)) -> bool:
     return component[0] == 0 or component[1] == 0
 
 
-def compute_fits(components: list[(int, int)]) -> dict[(int, int), list[(int, int)]]:
-    fits = defaultdict(list)
-
-    def add_potential_fit(c1, c2):
-        fit = is_fit(c1, c2)
-        if fit == 1:
-            fits[c1].append((c2, 1))
-        elif fit == -1:
-            fits[c1].append((c2, -1))
+def compute_port_map(components: list[(int, int)]) -> dict[(int, int), list[(int, int)]]:
+    port_map = defaultdict(list)
 
     for component in components:
-        for other_component in components:
-            if component == other_component:
-                continue
-            add_potential_fit(component, other_component)
-            add_potential_fit(flip(component), other_component)
+        port_map[component[0]].append((component, 1))
+        port_map[component[1]].append((component, -1))
 
-    return fits
+    return port_map
 
 
 def compute_part_one(file_name: str) -> str:
     components = read_input_file(file_name)
 
-    fits = compute_fits(components)
+    port_map = compute_port_map(components)
 
     visited_bridges = set()
 
@@ -96,7 +84,7 @@ def compute_part_one(file_name: str) -> str:
         extended_bridge = False
 
         last_bridge_component = bridge[-1]
-        potential_fits = fits[last_bridge_component]
+        potential_fits = port_map[last_bridge_component[1]]
 
         for component, orientation in potential_fits:
             if component in components:
