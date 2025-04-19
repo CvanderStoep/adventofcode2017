@@ -58,13 +58,15 @@ def compute_part_one(file_name: str) -> str:
 
     fits = compute_fits(components)
 
+    visited_bridges = set()
+
     queue = deque()
     for component in components:
         if not is_start_component(component):
             continue
         other_components = components.copy()
         other_components.remove(component)
-        start_component = component if component[0] else flip(component)
+        start_component = component if component[0] == 0 else flip(component)
         queue.append(([start_component], set([c for c in other_components if not is_start_component(c)])))
     max_strength = 0
 
@@ -79,6 +81,12 @@ def compute_part_one(file_name: str) -> str:
     longest_bridge = 0
     while queue:
         bridge, components = queue.popleft()
+
+        immutable_bridge = tuple(bridge)
+        if immutable_bridge in visited_bridges:
+            continue
+        visited_bridges.add(immutable_bridge)
+
         if len(bridge) > longest_bridge:
             longest_bridge = len(bridge)
             delay = (datetime.datetime.now() - longest_bridge_found).total_seconds()
@@ -126,7 +134,8 @@ def compute_part_two(file_name: str) -> str:
 
 if __name__ == '__main__':
     file_path = 'input/input24.txt'
-    print(f"Part I: {compute_part_one(file_path)}")
+    for _ in range(5):
+        print(f"Part I: {compute_part_one(file_path)}")
     print(f"Part II: {compute_part_two(file_path)}")
 
     # plt.ioff()
