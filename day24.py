@@ -14,14 +14,6 @@ def read_input_file(file_name: str) -> list[(int, int)]:
         return list(map(read_component, f.read().splitlines()))
 
 
-def is_fit(c1: (int, int), c2: (int, int)) -> int:
-    if c1[1]==c2[0]:
-        return 1
-    if c1[1]==c2[1]:
-        return -1
-    return 0
-
-
 def calculate_bridge_strength(bridge: list[(int, int)]) -> int:
     return sum(sum(component) for component in bridge)
 
@@ -38,8 +30,8 @@ def compute_port_map(components: list[(int, int)]) -> dict[(int, int), list[(int
     port_map = defaultdict(list)
 
     for component in components:
-        port_map[component[0]].append((component, 1))
-        port_map[component[1]].append((component, -1))
+        port_map[component[0]].append((component, False))
+        port_map[component[1]].append((component, True))
 
     return port_map
 
@@ -48,7 +40,8 @@ def assert_validity(components: list[(int, int)]):
     assert len(set(components)) == len(components), "Visited state tracking assumes no duplicate components"
 
 
-def compute_part_one(file_name: str) -> str:
+
+def compute_part_one(file_name: str, part: int) -> str:
     components = read_input_file(file_name)
     assert_validity(components)
 
@@ -80,6 +73,8 @@ def compute_part_one(file_name: str) -> str:
         visited_bridges.add(visited_bridge)
 
         if len(bridge) > longest_bridge:
+            if part == 2:
+                max_strength = 0
             longest_bridge = len(bridge)
             delay = (datetime.datetime.now() - longest_bridge_found).total_seconds()
             longest_bridge_found = datetime.datetime.now()
@@ -91,15 +86,13 @@ def compute_part_one(file_name: str) -> str:
         last_bridge_component = bridge[-1]
         potential_fits = port_map[last_bridge_component[1]]
 
-        for component, orientation in potential_fits:
+        for component, flipped in potential_fits:
             if component in components:
                 extended_bridge = True
                 other_components = components - {component}
                 new_bridge=bridge.copy()
-                if orientation == 1:
-                    new_bridge.append(component)
-                if orientation == -1:
-                    new_bridge.append(flip(component))
+                new_component = flip(component) if flipped else component
+                new_bridge.append(new_component)
                 queue.append((new_bridge, other_components))
 
         if not extended_bridge:
@@ -118,12 +111,9 @@ def compute_part_one(file_name: str) -> str:
     return f"{max_strength= }"
 
 
-def compute_part_two(file_name: str) -> str:
-    content = read_input_file(file_name)
-    return "part 2 not yet implemented"
 
 
 if __name__ == '__main__':
     file_path = 'input/input24.txt'
-    print(f"Part I: {compute_part_one(file_path)}")
-    print(f"Part II: {compute_part_two(file_path)}")
+    print(f"Part I: {compute_part_one(file_path, part=1)}")
+    print(f"Part II: {compute_part_one(file_path, part=2)}")
